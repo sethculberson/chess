@@ -8,7 +8,10 @@ import org.example.utils.Constants;
 public class GameState {
     private Board board;
     private Color turnToMove = Color.WHITE;
-    private boolean isActive = false;
+
+    private int epRow;
+    private int epCol;
+
     private Deque<UndoInfo> history = new ArrayDeque<UndoInfo>();
 
     public GameState() {
@@ -45,19 +48,22 @@ public class GameState {
         Square toSquare = move.getToSquare();
 
         Piece toMove = board.getPieceAt(fromSquare.getRow(), fromSquare.getColumn());
-        Piece capturedPiece = board.getPieceAt(toSquare.getRow(), toSquare.getColumn());
-       
-        boolean moveIsCapture = capturedPiece != null;
 
+        int capturedRow = toSquare.getRow(), capturedCol = toSquare.getColumn();
+        if (move.isEnPassant()) {
+            capturedRow = fromSquare.getRow();      // enemy pawn is beside us, on our row
+        }
+        Piece capturedPiece = board.getPieceAt(capturedRow, capturedCol);   // read AFTER adjusting
+
+        board.getSquares()[capturedRow][capturedCol].setCurrentPiece(null);
         board.getSquares()[fromSquare.getRow()][fromSquare.getColumn()].setCurrentPiece(null);
         board.getSquares()[toSquare.getRow()][toSquare.getColumn()].setCurrentPiece(toMove);
-
-        if (moveIsCapture) {}
 
         if (turnToMove == Color.WHITE) { turnToMove = Color.BLACK; } else { turnToMove = Color.WHITE; }
 
         // Update this when adding castling
-        history.push(new UndoInfo(move, toMove, capturedPiece, toSquare.getRow(), toSquare.getColumn(), false, false, false, false, 0, 0));
+        history.push(new UndoInfo(move, toMove, capturedPiece, capturedRow, capturedCol,
+                                false, false, false, false, 0, 0));
     }
 
     public void undoMove() {
@@ -87,6 +93,10 @@ public class GameState {
         epCol = u.getEpCol();
         halfmoveClock = u.getHalfmoveClock();*/
     }
+
+    public int getEnPassantRow() { return epRow; }
+
+    public int getEnPassantCol() { return epCol; }
 
     public boolean isSquareAttacked(int r, int c, Color attackerColor) {
         // By PAWNS
@@ -139,5 +149,9 @@ public class GameState {
 
     public static boolean isValidSquare(int r, int c) {
         return (r < 8 && r >= 0) && (c < 8 && c >= 0);
+    }
+
+    public Move getLastMove() {
+        return history.isEmpty() ? null : history.peek().getMove();
     }
 }

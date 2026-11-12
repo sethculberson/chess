@@ -80,8 +80,6 @@ public class ChessApp extends Application {
         else if (noMoves)        status.setText("Stalemate. It's a draw.");
         else if (inCheck)        status.setText(side + " to move. Check!");
         else                     status.setText(side + " to move");
-
-        undoButton.setDisable(true);
     }
 
     public static void main(String[] args) {

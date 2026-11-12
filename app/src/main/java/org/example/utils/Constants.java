@@ -1,5 +1,4 @@
 package org.example.utils;
-import java.util.List;
 
 public class Constants {
     public static final int[][] KNIGHT_MOVES = {

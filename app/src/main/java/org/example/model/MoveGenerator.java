@@ -46,16 +46,14 @@ public class MoveGenerator {
         Color turn = gs.getTurnToMove();
         Board board = gs.getBoard();
 
-        if (row == 7 || row == 0) return;
-
         int direction = turn == Color.WHITE ? -1 : 1;
 
         if (board.getPieceAt(row + direction, column) == null) {
-            moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column]));
+            moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column], false, null));
 
             if ((row == 6 && turn == Color.WHITE) || (row == 1 && turn == Color.BLACK)) {
                 if (board.getPieceAt(row + direction*2, column) == null) {
-                    moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction*2][column]));
+                    moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction*2][column], false, null));
                 }
             }
         }
@@ -63,18 +61,36 @@ public class MoveGenerator {
         if (column > 0) {
             Piece leftDiagonal = board.getPieceAt(row+direction, column-1);
             if (leftDiagonal != null && leftDiagonal.getColor() != turn) {
-                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column-1]));
+                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column-1], false, null));
             }
         }
 
         if (column < 7) {
             Piece rightDiagonal = board.getPieceAt(row+direction, column+1);
             if (rightDiagonal != null && rightDiagonal.getColor() != turn) {
-                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column+1]));
+                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column+1], false, null));
             }
         }
 
         // TO ADD: EN PASSANT + PROMOTION
+        Move lastMove = gs.getLastMove();
+        if (lastMove != null) {
+            Square lastTo = lastMove.getToSquare();
+            Square lastFrom = lastMove.getFromSquare();
+            Piece lastPieceMoved = board.getPieceAt(lastTo.getRow(), lastTo.getColumn());
+
+            if (lastPieceMoved != null &&
+                lastPieceMoved.getPieceType() == PieceType.PAWN &&
+                lastPieceMoved.getColor() != turn &&
+                lastTo.getRow() == row &&
+                Math.abs(lastTo.getColumn() - column) == 1 &&
+                Math.abs(lastFrom.getRow() - lastTo.getRow()) == 2) {
+
+                moves.add(new Move(board.getSquares()[row][column],
+                                board.getSquares()[row + direction][lastTo.getColumn()],
+                                true));
+            }
+        }
     }
 
     public static void knightMoves(GameState gs, int row, int column, List<Move> moves) {
@@ -93,7 +109,7 @@ public class MoveGenerator {
             Piece target = board.getPieceAt(row2, col2);
             if (target != null && target.getColor() == turn) continue;
 
-            moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2]));
+            moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2], false, null));
         }
     }
 
@@ -139,7 +155,7 @@ public class MoveGenerator {
             if (!isValidSquare(row2, col2)) continue;
             Piece piece = board.getPieceAt(row2, col2);
             if (piece == null || piece.getColor() != turn) {
-                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2]));
+                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2], false, null));
             }
         }
     }
@@ -158,7 +174,7 @@ public class MoveGenerator {
                 Piece piece = board.getPieceAt(row2, col2);
                 if (piece != null) isUnblocked = false;
                 if (piece == null || piece.getColor() != turn) {
-                    moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2]));
+                    moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2], false, null));
                 }
                 currRow = row2; currCol = col2;
             }
