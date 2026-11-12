@@ -4,6 +4,8 @@ public class Move {
     private Square fromSquare;
     private Square toSquare;
     private boolean isEnPassant = false;
+    private boolean isPromotion = false;
+    private PieceType promotionType;
 
     public Move(Square fromSquare, Square toSquare) {
         this.fromSquare = fromSquare;
@@ -20,10 +22,12 @@ public class Move {
         this.fromSquare = fromSquare;
         this.toSquare = toSquare;
 
-        // More logic ...
+        this.isPromotion = isPromotion;
+        this.promotionType = promotionType;
     }
     public Square getToSquare() { return toSquare; }
     public Square getFromSquare() { return fromSquare; }
-    public PieceType getPromotion() { return PieceType.QUEEN; }
     public boolean isEnPassant() { return isEnPassant; }
+    public boolean isPromotion() { return isPromotion; }
+    public PieceType getPromotionPieceType() { return promotionType; }
 }

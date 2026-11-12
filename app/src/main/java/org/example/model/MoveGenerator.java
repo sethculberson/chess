@@ -49,11 +49,11 @@ public class MoveGenerator {
         int direction = turn == Color.WHITE ? -1 : 1;
 
         if (board.getPieceAt(row + direction, column) == null) {
-            moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column], false, null));
+            addPawnMove(board, row, column, row + direction, column, turn, moves);
 
             if ((row == 6 && turn == Color.WHITE) || (row == 1 && turn == Color.BLACK)) {
                 if (board.getPieceAt(row + direction*2, column) == null) {
-                    moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction*2][column], false, null));
+                    moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction*2][column]));
                 }
             }
         }
@@ -61,18 +61,17 @@ public class MoveGenerator {
         if (column > 0) {
             Piece leftDiagonal = board.getPieceAt(row+direction, column-1);
             if (leftDiagonal != null && leftDiagonal.getColor() != turn) {
-                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column-1], false, null));
+                addPawnMove(board, row, column, row + direction, column - 1, turn, moves);
             }
         }
 
         if (column < 7) {
             Piece rightDiagonal = board.getPieceAt(row+direction, column+1);
             if (rightDiagonal != null && rightDiagonal.getColor() != turn) {
-                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction][column+1], false, null));
+                addPawnMove(board, row, column, row + direction, column + 1, turn, moves);
             }
         }
 
-        // TO ADD: EN PASSANT + PROMOTION
         Move lastMove = gs.getLastMove();
         if (lastMove != null) {
             Square lastTo = lastMove.getToSquare();
@@ -90,6 +89,23 @@ public class MoveGenerator {
                                 board.getSquares()[row + direction][lastTo.getColumn()],
                                 true));
             }
+        }
+
+
+    }
+
+    private static void addPawnMove(Board board, int fromRow, int fromCol, int toRow, int toCol,
+                                    Color turn, List<Move> moves) {
+        Square from = board.getSquares()[fromRow][fromCol];
+        Square to = board.getSquares()[toRow][toCol];
+        int promotionRow = turn == Color.WHITE ? 0 : 7;
+
+        if (toRow == promotionRow) {
+            for (PieceType type : PieceType.PROMOTION_PIECES) {
+                moves.add(new Move(from, to, true, type));
+            }
+        } else {
+            moves.add(new Move(from, to));
         }
     }
 

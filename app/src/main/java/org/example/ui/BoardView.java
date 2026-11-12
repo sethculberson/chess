@@ -163,7 +163,7 @@ public class BoardView extends StackPane {
                 return true;
             }
             chosen = candidates.stream()
-                    .filter(m -> m.getPromotion() == choice)
+                    .filter(m -> m.getPromotionPieceType() == choice)
                     .findFirst()
                     .orElse(candidates.get(0));
         }

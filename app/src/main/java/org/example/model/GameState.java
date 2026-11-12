@@ -54,10 +54,14 @@ public class GameState {
             capturedRow = fromSquare.getRow();      // enemy pawn is beside us, on our row
         }
         Piece capturedPiece = board.getPieceAt(capturedRow, capturedCol);   // read AFTER adjusting
+        Piece toPlace = toMove; 
+        if (move.isPromotion()) {
+            toPlace = new Piece(move.getPromotionPieceType(), toMove.getColor());
+        }
 
         board.getSquares()[capturedRow][capturedCol].setCurrentPiece(null);
         board.getSquares()[fromSquare.getRow()][fromSquare.getColumn()].setCurrentPiece(null);
-        board.getSquares()[toSquare.getRow()][toSquare.getColumn()].setCurrentPiece(toMove);
+        board.getSquares()[toSquare.getRow()][toSquare.getColumn()].setCurrentPiece(toPlace);
 
         if (turnToMove == Color.WHITE) { turnToMove = Color.BLACK; } else { turnToMove = Color.WHITE; }
 
