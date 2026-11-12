@@ -1,0 +1,59 @@
+/* ---------- window ---------- */
+.root {
+    -fx-background-color: #302e2b;
+}
+
+.status {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.button {
+    -fx-background-color: #4b4847;
+    -fx-text-fill: #f0f0f0;
+    -fx-font-size: 14px;
+    -fx-background-radius: 6;
+    -fx-padding: 8 14;
+    -fx-cursor: hand;
+}
+.button:hover    { -fx-background-color: #5d5a58; }
+.button:pressed  { -fx-background-color: #3d3b39; }
+.button:disabled { -fx-opacity: 0.4; }
+
+/* ---------- squares ---------- */
+.square.light { -fx-fill: #f0d9b5; }
+.square.dark  { -fx-fill: #b58863; }
+
+.tint            { -fx-fill: transparent; }
+.tint.last-move  { -fx-fill: rgba(205, 210, 106, 0.55); }
+.tint.selected   { -fx-fill: rgba(20, 85, 30, 0.50); }
+.tint.check      {
+    -fx-fill: radial-gradient(center 50% 50%, radius 60%,
+                              rgba(255, 0, 0, 0.90) 0%, rgba(255, 0, 0, 0) 100%);
+}
+
+/* ---------- legal-move markers ---------- */
+.target-dot   { -fx-fill: rgba(20, 85, 30, 0.45); }
+.capture-ring {
+    -fx-fill: transparent;
+    -fx-stroke: rgba(20, 85, 30, 0.55);
+    -fx-stroke-width: 6;
+}
+
+/* ---------- pieces ---------- */
+.piece.white {
+    -fx-fill: #ffffff;
+    -fx-stroke: #222222;
+    -fx-stroke-width: 1.5;
+}
+.piece.black {
+    -fx-fill: #111111;
+    -fx-stroke: #111111;
+    -fx-stroke-width: 1;
+}
+
+/* ---------- a-h / 1-8 labels ---------- */
+.coord          { -fx-font-size: 12px; -fx-font-weight: bold; }
+.coord.on-light { -fx-fill: #b58863; }
+.coord.on-dark  { -fx-fill: #f0d9b5; }
