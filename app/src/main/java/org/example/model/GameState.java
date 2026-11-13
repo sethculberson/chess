@@ -18,12 +18,29 @@ public class GameState {
     private boolean blackQueenside = true;
 
     private Deque<UndoInfo> history = new ArrayDeque<UndoInfo>();
+    
+    private int halfMoveClock;
+    private int fullMoveNumber;
 
     public GameState() {
         this.board = new Board();
         board.setupStartingPosition();
         this.turnToMove = Color.WHITE;
         // castling rights all true, en passant square = none (-1), etc.
+    }
+
+    // Constructor for FEN notation
+    public GameState(Board board, Color turnToMove, int epRow, int epCol, boolean whiteKingside, boolean whiteQueenside, boolean blackKingside, boolean blackQueenside, int halfMoveClock, int fullMoveNumber) {
+        this.board = board;
+        this.turnToMove = turnToMove;
+        this.epRow = epRow;
+        this.epCol = epCol;
+        this.whiteKingside = whiteKingside;
+        this.whiteQueenside = whiteQueenside;
+        this.blackKingside = blackKingside;
+        this.blackQueenside = blackQueenside;
+        this.halfMoveClock = halfMoveClock;
+        this.fullMoveNumber = fullMoveNumber;
     }
 
     public boolean canCastleKingside(Color turn) { return turn == Color.WHITE ? whiteKingside : blackKingside; }
