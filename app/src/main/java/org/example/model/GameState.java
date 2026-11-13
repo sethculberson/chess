@@ -12,6 +12,11 @@ public class GameState {
     private int epRow;
     private int epCol;
 
+    private boolean whiteKingside = true;
+    private boolean whiteQueenside = true;
+    private boolean blackKingside = true;
+    private boolean blackQueenside = true;
+
     private Deque<UndoInfo> history = new ArrayDeque<UndoInfo>();
 
     public GameState() {
@@ -21,6 +26,8 @@ public class GameState {
         // castling rights all true, en passant square = none (-1), etc.
     }
 
+    public boolean canCastleKingside(Color turn) { return turn == Color.WHITE ? whiteKingside : blackKingside; }
+    public boolean canCastleQueenside(Color turn) { return turn == Color.WHITE ? whiteQueenside : blackQueenside; }
 
     public boolean canUndo() { return !history.isEmpty(); }
 
@@ -46,33 +53,77 @@ public class GameState {
     public void makeMove(Move move) {
         Square fromSquare = move.getFromSquare();
         Square toSquare = move.getToSquare();
+        int fromRow = fromSquare.getRow(), fromCol = fromSquare.getColumn();
+        int toRow = toSquare.getRow(), toCol = toSquare.getColumn();
 
-        Piece toMove = board.getPieceAt(fromSquare.getRow(), fromSquare.getColumn());
+        Piece toMove = board.getPieceAt(fromRow, fromCol);
 
-        int capturedRow = toSquare.getRow(), capturedCol = toSquare.getColumn();
+        int capturedRow = toRow, capturedCol = toCol;
         if (move.isEnPassant()) {
-            capturedRow = fromSquare.getRow();      // enemy pawn is beside us, on our row
+            capturedRow = fromRow;
         }
-        Piece capturedPiece = board.getPieceAt(capturedRow, capturedCol);   // read AFTER adjusting
-        Piece toPlace = toMove; 
+        Piece capturedPiece = board.getPieceAt(capturedRow, capturedCol);
+        history.push(new UndoInfo(move, toMove, capturedPiece, capturedRow, capturedCol,
+                                whiteKingside, whiteQueenside, blackKingside, blackQueenside, 0, 0));
+
+        Piece placed = toMove;
         if (move.isPromotion()) {
-            toPlace = new Piece(move.getPromotionPieceType(), toMove.getColor());
+            placed = new Piece(move.getPromotionPieceType(), toMove.getColor());
+        }
+        board.setPieceAt(capturedRow, capturedCol, null);
+        board.setPieceAt(fromRow, fromCol, null);
+        board.setPieceAt(toRow, toCol, placed);
+
+        // Castling: the king moved two columns, so move the rook as well
+        if (toMove.getPieceType() == PieceType.KING && Math.abs(toCol - fromCol) == 2) {
+            if (toCol == 6) {                       // kingside
+                board.setPieceAt(fromRow, 5, board.getPieceAt(fromRow, 7));
+                board.setPieceAt(fromRow, 7, null);
+            } else {                                // queenside
+                board.setPieceAt(fromRow, 3, board.getPieceAt(fromRow, 0));
+                board.setPieceAt(fromRow, 0, null);
+            }
         }
 
-        board.getSquares()[capturedRow][capturedCol].setCurrentPiece(null);
-        board.getSquares()[fromSquare.getRow()][fromSquare.getColumn()].setCurrentPiece(null);
-        board.getSquares()[toSquare.getRow()][toSquare.getColumn()].setCurrentPiece(toPlace);
+        // Any move from or to these squares loses castling rights
+        updateCastlingRights(fromRow, fromCol);
+        updateCastlingRights(toRow, toCol);
 
         if (turnToMove == Color.WHITE) { turnToMove = Color.BLACK; } else { turnToMove = Color.WHITE; }
+    }
 
-        // Update this when adding castling
-        history.push(new UndoInfo(move, toMove, capturedPiece, capturedRow, capturedCol,
-                                false, false, false, false, 0, 0));
+    private void updateCastlingRights(int row, int col) {
+        if (row == 7 && col == 4) { whiteKingside = false; whiteQueenside = false; }
+        if (row == 0 && col == 4) { blackKingside = false; blackQueenside = false; }
+        if (row == 7 && col == 7) whiteKingside = false;
+        if (row == 7 && col == 0) whiteQueenside = false;
+        if (row == 0 && col == 7) blackKingside = false;
+        if (row == 0 && col == 0) blackQueenside = false;
     }
 
     public void undoMove() {
         UndoInfo u = history.pop();
+        // Castling: move the rook back
         Move m = u.getMove();
+        int fromRow = m.getFromSquare().getRow();
+        int fromCol = m.getFromSquare().getColumn();
+        int toCol = m.getToSquare().getColumn();
+
+        if (u.getMovedPiece().getPieceType() == PieceType.KING && Math.abs(toCol - fromCol) == 2) {
+            if (toCol == 6) {
+                board.setPieceAt(fromRow, 7, board.getPieceAt(fromRow, 5));
+                board.setPieceAt(fromRow, 5, null);
+            } else {
+                board.setPieceAt(fromRow, 0, board.getPieceAt(fromRow, 3));
+                board.setPieceAt(fromRow, 3, null);
+            }
+        }
+
+        // Restore the saved state
+        whiteKingside  = u.isWhiteKingside();
+        whiteQueenside = u.isWhiteQueenside();
+        blackKingside  = u.isBlackKingside();
+        blackQueenside = u.isBlackQueenside();
 
         turnToMove = Color.opposite(turnToMove);
 
@@ -84,18 +135,6 @@ public class GameState {
         if (u.getCapturedPiece() != null) {
             board.getSquares()[u.getCapturedRow()][u.getCapturedCol()].setCurrentPiece(u.getCapturedPiece());
         }
-
-        // castling: move the rook back too (see below)
-
-        // restore the saved state
-        /*
-        whiteKingside  = u.isWhiteKingside();
-        whiteQueenside = u.isWhiteQueenside();
-        blackKingside  = u.isBlackKingside();
-        blackQueenside = u.isBlackQueenside();
-        epRow = u.getEpRow();
-        epCol = u.getEpCol();
-        halfmoveClock = u.getHalfmoveClock();*/
     }
 
     public int getEnPassantRow() { return epRow; }

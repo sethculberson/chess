@@ -174,6 +174,31 @@ public class MoveGenerator {
                 moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2], false, null));
             }
         }
+
+        int homeRow = turn == Color.WHITE ? 7 : 0;
+        Color enemy = Color.opposite(turn);
+
+        if (row == homeRow && column == 4 && !gs.isInCheck(turn)) {
+            // Kingside: f and g empty, king doesn't cross an attacked square
+            if (gs.canCastleKingside(turn) &&
+                board.isPiece(homeRow, 7, PieceType.ROOK, turn) &&
+                board.getPieceAt(homeRow, 5) == null &&
+                board.getPieceAt(homeRow, 6) == null &&
+                !gs.isSquareAttacked(homeRow, 5, enemy)) {
+                moves.add(new Move(board.getSquares()[homeRow][4], board.getSquares()[homeRow][6], false, null));
+            }
+
+            // Queenside: b, c and d empty, king doesn't cross an attacked square
+            if (gs.canCastleQueenside(turn) &&
+                board.isPiece(homeRow, 0, PieceType.ROOK, turn) &&
+                board.getPieceAt(homeRow, 1) == null &&
+                board.getPieceAt(homeRow, 2) == null &&
+                board.getPieceAt(homeRow, 3) == null &&
+                !gs.isSquareAttacked(homeRow, 3, enemy)) {
+                moves.add(new Move(board.getSquares()[homeRow][4], board.getSquares()[homeRow][2], false, null));
+            }
+        }
+
     }
 
     private static void slidingMoves(GameState gs, int row, int column, int[][] directions, List<Move> moves) {
