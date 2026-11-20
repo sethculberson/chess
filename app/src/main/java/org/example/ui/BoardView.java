@@ -272,7 +272,7 @@ public class BoardView extends StackPane {
         ghost.setX(x - ghost.getLayoutBounds().getWidth() / 2);
         ghost.setY(y);                             // text origin is CENTER
     }
-
+ 
     // ---------- helpers ----------
 
     /** Pixel position -> model {row, col}, or null if outside the board. */
@@ -284,7 +284,7 @@ public class BoardView extends StackPane {
     }
 
     private Piece pieceAt(int r, int c) {
-        return game.getBoard().getSquares()[r][c].getCurrentPiece();
+        return game.getBoard().getSquares()[r*8 + c].getCurrentPiece();
     }
 
     private boolean hasSelection() { return selRow >= 0; }

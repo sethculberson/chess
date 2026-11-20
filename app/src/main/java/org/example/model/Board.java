@@ -1,32 +1,31 @@
 package org.example.model;
 
 public class Board {
-    private Square[][] squares = new Square[8][8];
+    private Square[] squares = new Square[64];
 
     public Board() {
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                squares[r][c] = new Square(r, c);
-            }
+        for (int i = 0; i < squares.length; i++) {
+            squares[i] = new Square(i/8, i%8);
         }
     }
 
-    public Square[][] getSquares() { return squares; }
+    public Square[] getSquares() { return squares; }
     public Piece getPieceAt(int row, int col) {
-        return squares[row][col].getCurrentPiece();
+        return squares[rowColToIndex(row, col)].getCurrentPiece();
     }
 
     public boolean isPiece(int row, int col, PieceType pieceType, Color color) {
         if (!GameState.isValidSquare(row, col)) return false;
 
-        Piece p = squares[row][col].getCurrentPiece();
+        int index = row*8 + col;
+        Piece p = squares[index].getCurrentPiece();
 
         if (p != null && p.getPieceType() == pieceType && p.getColor() == color) return true;
         return false;
     }
 
     public void setPieceAt(int row, int col, Piece piece) {
-        squares[row][col].setCurrentPiece(piece);
+        squares[rowColToIndex(row, col)].setCurrentPiece(piece);
     }
 
     public void setupStartingPosition() {
@@ -42,4 +41,6 @@ public class Board {
             setPieceAt(7, c, new Piece(backRank[c], Color.WHITE));
         }
     }
+
+    public static int rowColToIndex(int row, int col) { return row*8 + col; }
 }

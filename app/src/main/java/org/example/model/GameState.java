@@ -145,12 +145,12 @@ public class GameState {
         turnToMove = Color.opposite(turnToMove);
 
         // put the moved piece back (the original pawn, if it promoted)
-        board.getSquares()[m.getFromSquare().getRow()][m.getFromSquare().getColumn()].setCurrentPiece(u.getMovedPiece());
-        board.getSquares()[m.getToSquare().getRow()][m.getToSquare().getColumn()].setCurrentPiece(null);
+        board.setPieceAt(m.getFromSquare().getRow(), m.getFromSquare().getColumn(), u.getMovedPiece());
+        board.setPieceAt(m.getToSquare().getRow(), m.getToSquare().getColumn(), null);
 
         // put the captured piece back where it actually was (may be null = nothing captured)
         if (u.getCapturedPiece() != null) {
-            board.getSquares()[u.getCapturedRow()][u.getCapturedCol()].setCurrentPiece(u.getCapturedPiece());
+            board.setPieceAt(u.getCapturedRow(), u.getCapturedCol(), u.getCapturedPiece());
         }
     }
 

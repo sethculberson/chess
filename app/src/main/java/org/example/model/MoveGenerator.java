@@ -53,7 +53,7 @@ public class MoveGenerator {
 
             if ((row == 6 && turn == Color.WHITE) || (row == 1 && turn == Color.BLACK)) {
                 if (board.getPieceAt(row + direction*2, column) == null) {
-                    moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row+direction*2][column]));
+                    moves.add(new Move(board.getSquares()[row*8 + column], board.getSquares()[(row+direction*2)*8 + column]));
                 }
             }
         }
@@ -85,8 +85,8 @@ public class MoveGenerator {
                 Math.abs(lastTo.getColumn() - column) == 1 &&
                 Math.abs(lastFrom.getRow() - lastTo.getRow()) == 2) {
 
-                moves.add(new Move(board.getSquares()[row][column],
-                                board.getSquares()[row + direction][lastTo.getColumn()],
+                moves.add(new Move(board.getSquares()[row*8 + column],
+                                board.getSquares()[(row + direction)*8 + lastTo.getColumn()],
                                 true));
             }
         }
@@ -96,8 +96,8 @@ public class MoveGenerator {
 
     private static void addPawnMove(Board board, int fromRow, int fromCol, int toRow, int toCol,
                                     Color turn, List<Move> moves) {
-        Square from = board.getSquares()[fromRow][fromCol];
-        Square to = board.getSquares()[toRow][toCol];
+        Square from = board.getSquares()[fromRow*8 + fromCol];
+        Square to = board.getSquares()[toRow*8 + toCol];
         int promotionRow = turn == Color.WHITE ? 0 : 7;
 
         if (toRow == promotionRow) {
@@ -125,7 +125,7 @@ public class MoveGenerator {
             Piece target = board.getPieceAt(row2, col2);
             if (target != null && target.getColor() == turn) continue;
 
-            moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2], false, null));
+            moves.add(new Move(board.getSquares()[row*8 + column], board.getSquares()[row2*8 + col2], false, null));
         }
     }
 
@@ -171,7 +171,7 @@ public class MoveGenerator {
             if (!isValidSquare(row2, col2)) continue;
             Piece piece = board.getPieceAt(row2, col2);
             if (piece == null || piece.getColor() != turn) {
-                moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2], false, null));
+                moves.add(new Move(board.getSquares()[row*8 + column], board.getSquares()[row2*8 + col2], false, null));
             }
         }
 
@@ -185,7 +185,7 @@ public class MoveGenerator {
                 board.getPieceAt(homeRow, 5) == null &&
                 board.getPieceAt(homeRow, 6) == null &&
                 !gs.isSquareAttacked(homeRow, 5, enemy)) {
-                moves.add(new Move(board.getSquares()[homeRow][4], board.getSquares()[homeRow][6], false, null));
+                moves.add(new Move(board.getSquares()[homeRow*8 + 4], board.getSquares()[homeRow*8 + 6], false, null));
             }
 
             // Queenside: b, c and d empty, king doesn't cross an attacked square
@@ -195,7 +195,7 @@ public class MoveGenerator {
                 board.getPieceAt(homeRow, 2) == null &&
                 board.getPieceAt(homeRow, 3) == null &&
                 !gs.isSquareAttacked(homeRow, 3, enemy)) {
-                moves.add(new Move(board.getSquares()[homeRow][4], board.getSquares()[homeRow][2], false, null));
+                moves.add(new Move(board.getSquares()[homeRow*8 + 4], board.getSquares()[homeRow*8 + 2], false, null));
             }
         }
 
@@ -215,7 +215,7 @@ public class MoveGenerator {
                 Piece piece = board.getPieceAt(row2, col2);
                 if (piece != null) isUnblocked = false;
                 if (piece == null || piece.getColor() != turn) {
-                    moves.add(new Move(board.getSquares()[row][column], board.getSquares()[row2][col2], false, null));
+                    moves.add(new Move(board.getSquares()[row*8 + column], board.getSquares()[row2*8 + col2], false, null));
                 }
                 currRow = row2; currCol = col2;
             }
